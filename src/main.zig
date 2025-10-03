@@ -331,7 +331,7 @@ fn main() !void {
 
 
 
-	switch (4) {
+	switch (5) {
 		0 => { // LED blink
 			var counter: usize = 0;
 
@@ -590,6 +590,44 @@ fn main() !void {
 		},
 		5 => {
 
+			RCC.AHB2ENR.GPIOAEN = true;
+			RCC.AHB2ENR.GPIOBEN = true;
+			RCC.AHB2ENR.GPIOCEN = true;
+			RCC.APB1ENR1.spi2_enable = true;
+
+			GPIO_C.mode.pin_0x3 = .alt_func; // mosi pin
+			GPIO_B.mode.pin_0xE = .alt_func; // miso pin
+			GPIO_B.mode.pin_0xD = .alt_func; // sclk pin
+			GPIO_B.mode.pin_0xB = .output; // latch pin
+
+			GPIO_B.mode.pin_0xC = .output; // imu cs
+
+			GPIO_C.alt_func.pin_0x3 = 5;
+			GPIO_B.alt_func.pin_0xD = 5;
+			GPIO_B.alt_func.pin_0xE = 5;
+
+			GPIO_B.output.pin_0xC = true;
+
+			const imu = hal.Imu{
+				.spi = .{ .regs = SPI_2 },
+				.cs_pin = .{
+					.root_controller = GPIO_B,
+					.pin_num = 0xC,
+				},
+			};
+
+			imu.config_spi();
+
+
+			delay();
+
+			while (true) {
+				const whoami = imu.get_reg(0x0f);
+
+				std.log.info("whoami: 0x{x}", .{whoami});
+				delay();
+
+			}
 		},
 		else => { // echo
 			while (true) {

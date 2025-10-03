@@ -133,7 +133,7 @@ pub const VectorTable = extern struct {
 };
 
 
-pub const GpioModes = enum(u2) {
+pub const GpioMode = enum(u2) {
 	input    = 0b00,
 	output   = 0b01,
 	alt_func = 0b10,
@@ -141,22 +141,22 @@ pub const GpioModes = enum(u2) {
 };
 
 pub const GPIO_MODER = packed struct(u32) {
-	pin_0x0: GpioModes,
-	pin_0x1: GpioModes,
-	pin_0x2: GpioModes,
-	pin_0x3: GpioModes,
-	pin_0x4: GpioModes,
-	pin_0x5: GpioModes,
-	pin_0x6: GpioModes,
-	pin_0x7: GpioModes,
-	pin_0x8: GpioModes,
-	pin_0x9: GpioModes,
-	pin_0xA: GpioModes,
-	pin_0xB: GpioModes,
-	pin_0xC: GpioModes,
-	pin_0xD: GpioModes,
-	pin_0xE: GpioModes,
-	pin_0xF: GpioModes,
+	pin_0x0: GpioMode,
+	pin_0x1: GpioMode,
+	pin_0x2: GpioMode,
+	pin_0x3: GpioMode,
+	pin_0x4: GpioMode,
+	pin_0x5: GpioMode,
+	pin_0x6: GpioMode,
+	pin_0x7: GpioMode,
+	pin_0x8: GpioMode,
+	pin_0x9: GpioMode,
+	pin_0xA: GpioMode,
+	pin_0xB: GpioMode,
+	pin_0xC: GpioMode,
+	pin_0xD: GpioMode,
+	pin_0xE: GpioMode,
+	pin_0xF: GpioMode,
 };
 
 pub const GPIO_ODR = packed struct(u32) {
@@ -331,13 +331,17 @@ pub const SPI = packed struct {
 
 		enable: bool, // SPE
 
-		bit_order: enum(u1) {
+		bit_order: enum(u1) { // LSBFIRST
 			msb_first = 0,
 			lsb_first = 1,
 		},
 		_SSI: u1,
 		_SSM: u1,
-		_RXONLY: u1,
+
+		directions: enum(u1) { // RXONLY
+			duplex  = 0,
+			simplex = 1,
+		},
 		_CRCL: u1,
 		_CRCNEXT: u1,
 		_CRCEN: u1,
@@ -376,7 +380,10 @@ pub const SPI = packed struct {
 			bits_16 = 0b1111,
 		},
 
-		_FRXT: u1,
+		min_receive_amount: enum(u1) { // FRXTH
+			bits_8 = 1,
+			bits_16 = 0,
+		},
 		_LDMA_RX: u1,
 		_LDMA_TX: u1,
 
